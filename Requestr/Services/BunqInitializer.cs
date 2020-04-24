@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace BunqDownloader.Bunq
 {
@@ -21,14 +22,22 @@ namespace BunqDownloader.Bunq
             this.config = configuration.Value;
         }
 
-        private string ComputeConfigPath(string username) =>
-            Path.Combine( this.config.ConfigBasePath, $"{username}.config");
+        private ApiEnvironmentType Environment =>
+            this.config.Environment.ToLower() == "production"
+            ? ApiEnvironmentType.PRODUCTION
+            : ApiEnvironmentType.SANDBOX;
 
-        public void RestoreApiContext(string username)
+        private string ComputeConfigPath(Guid userId) =>
+            Path.Combine(this.config.ConfigBasePath, $"{userId}.{this.Environment.TypeString}.config");
+
+        public bool IsInitialized(Guid userId) =>
+            File.Exists(ComputeConfigPath(userId));
+
+        public void RestoreApiContext(Guid userId)
         {
-            string configPath = this.ComputeConfigPath(username);
-            if (!File.Exists(configPath))
-                throw new ArgumentException($"No configuration exists for user {username}.");
+            string configPath = this.ComputeConfigPath(userId);
+            if (!this.IsInitialized(userId))
+                throw new ArgumentException($"No configuration exists for user {userId}.");
 
             var apiContext = ApiContext.Restore(configPath);
             apiContext.EnsureSessionActive();
@@ -42,22 +51,23 @@ namespace BunqDownloader.Bunq
             }
         }
 
-        public void CreateApiContext(string username, string apiKey)
+        public void CreateApiContext(Guid userId, string apiKey)
         {
-            var useProd = this.config.Environment.ToLower() == "production";
-            if (!useProd)
+            if (this.Environment == ApiEnvironmentType.SANDBOX)
             {
                 var sandboxUser = GenerateNewSandboxUser();
                 apiKey = sandboxUser.ApiKey;
             }
 
             var api = ApiContext.Create(
-                useProd ? ApiEnvironmentType.PRODUCTION : ApiEnvironmentType.SANDBOX,
-                apiKey,
-                this.config.Description);
-            api.Save(this.ComputeConfigPath(username));
+                this.Environment, apiKey, this.config.Description);
+
+            api.Save(this.ComputeConfigPath(userId));
 
             BunqContext.LoadApiContext(api);
+
+            if (this.Environment == ApiEnvironmentType.SANDBOX)
+                AddSandboxPayments();
         }
 
         private SandboxUser GenerateNewSandboxUser()
@@ -81,14 +91,34 @@ namespace BunqDownloader.Bunq
 
         private void AddSandboxPayments()
         {
-            RequestInquiry.Create(
-                new Amount("500.00", "EUR"),
-                new Pointer("EMAIL", "sugardaddy@bunq.com"),
-                "Requesting some spending money.",
-                false
-            );
+            if (BunqContext.ApiContext.EnvironmentType != ApiEnvironmentType.SANDBOX)
+                throw new InvalidOperationException("Payments can only be added in the sandbox.");
 
-            Thread.Sleep(1000);
+            // Usually the BunqContext should be used in a separate task
+            // because it is a singleton. However, since this is the sandbox,
+            // it does not matter (that much).
+            Task.Run(() =>
+            {
+                RequestInquiry.Create(
+                    new Amount("500.00", "EUR"),
+                    new Pointer("EMAIL", "sugardaddy@bunq.com"),
+                    "Requesting some spending money.",
+                    false
+                );
+
+                Thread.Sleep(1000);
+
+                var rng = new Random();
+                for (int i = 0; i < 10; i++)
+                {
+                    var euro = rng.Next(10, 50);
+                    var cent = rng.Next(0, 100);
+                    Payment.Create(
+                        new Amount($"{euro}.{cent}", "EUR"),
+                        new Pointer("EMAIL", "sugardaddy@bunq.com"),
+                        $"Test Payment {i + 1}");
+                }
+            });
         }
     }
 }

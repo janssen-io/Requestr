@@ -14,5 +14,6 @@ namespace Requestr.Controllers.Data
         public string Currency { get; set; } = "EUR";
         public bool WithStatement { get; set; }
         public bool WithReceipts { get; set; }
+        public int[]? Transactions { get; set; }
     }
 }

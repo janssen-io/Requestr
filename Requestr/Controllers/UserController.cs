@@ -40,7 +40,9 @@ namespace Requestr.Controllers
             if (IsPasswordValid(loginRequest.Username, loginRequest.Password))
             {
                 var user = dbContext.User.Single(user => user.Username == loginRequest.Username);
-                return new AuthorizationToken(tokenService.Create(user));
+                return new AuthorizationToken(
+                    tokenService.Create(user),
+                    initializer.IsInitialized(user.Id));
             }
 
             return Unauthorized();
@@ -54,7 +56,7 @@ namespace Requestr.Controllers
             if (userId is null)
                 return BadRequest();
 
-            this.initializer.CreateApiContext(userId, apiKey);
+            this.initializer.CreateApiContext(Guid.Parse(userId), apiKey);
 
             return NoContent();
         }
@@ -75,7 +77,9 @@ namespace Requestr.Controllers
             }
 
             var user = AddUser(registrationRequest.Username, registrationRequest.Password);
-            return new AuthorizationToken(tokenService.Create(user));
+            return new AuthorizationToken(
+                tokenService.Create(user),
+                initializer.IsInitialized(user.Id));
         }
 
         private bool IsPasswordValid(string username, string password)

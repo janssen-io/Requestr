@@ -76,6 +76,12 @@ namespace Requestr
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin();
+                builder.AllowAnyHeader();
+                builder.AllowAnyMethod();
+            });
 
             app.UseAuthorization();
             app.UseMiddleware<RestoreContextMiddleware>();

@@ -35,7 +35,7 @@ namespace Requestr.Middleware
                 {
                     try
                     {
-                        this.initializer.RestoreApiContext(userId);
+                        this.initializer.RestoreApiContext(Guid.Parse(userId));
                     }
                     catch(ArgumentException)
                     {
