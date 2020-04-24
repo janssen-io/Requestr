@@ -1,0 +1,14 @@
+View split in two: left column transactions, right column send data.
+If total <= 0, then nothing can be sent.
+
+list of transactions
+- checkbox (value = id + amount)
+- on send, 
+    * send e-mail address
+    * send description
+    * send amount
+    * send currency
+    * if receipts
+      then phone is mandatory
+    * if attachment or receipts is checked, 
+      then send transactions 
