@@ -1,3 +1,14 @@
+TODO:
+[ ] Proper return values from API (i.e. errors wrapped in { error: "message" })
+[ ] Send Created and Counter Party properties of transaction to front-end
+[x] Add option to divide the amount (default: 2)
+[ ] Protect routes in frontend if token is not present or has expired
+[ ] styling (general styling, show errors, add navigation to update apikey)
+[ ] implement 'add bank statement' option
+[ ] Add option for multiple e-mail addresses (auto-update divisor?)
+[ ] implement 'add receipts' option
+
+
 dotnet api
 vue/angular frontend
 

@@ -7,6 +7,7 @@
       <div v-else>
         <div>Total: {{ total }}</div>
         <input type="email" v-model="recipient">
+        <input type="number" v-model="numberOfPeople">
         <textarea v-model="description"></textarea>
         <button v-on:click="isSelecting = true">Change selection</button>
         <button v-on:click="sendPaymentRequest">Send payment request</button>
@@ -27,12 +28,22 @@ export default {
       recipient: "",
       description: "",
       isSelecting: true,
+      numberOfPeople: 1,
       message: ""
+    }
+  },
+  watch: {
+    numberOfPeople: function() {
+      if (this.numberOfPeople < 1){
+        this.numberOfPeople = 1;
+      }
     }
   },
   computed: {
       total: function() { 
-          return this.transactions.reduce((acc, curr) => acc - curr.amount, 0).toFixed(2);
+          let sum = this.transactions.reduce((acc, curr) => acc - curr.amount, 0)
+          let dividedSum = sum / this.numberOfPeople; 
+          return dividedSum.toFixed(2);
         }
   },
   methods: {
