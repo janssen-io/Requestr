@@ -23,7 +23,8 @@ export default {
         username: this.username,
         password: this.password
       }
-      let authResult = await fetch('https://localhost:44352/api/users/login', {
+      let url = new URL(`${process.env.VUE_APP_API}/api/users/login`);
+      let authResult = await fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
         mode: 'cors',

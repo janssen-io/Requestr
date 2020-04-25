@@ -34,6 +34,15 @@ namespace Requestr.Controllers
         [Authorize]
         public async Task<ActionResult<PaymentRequestResponse>> SendRequest(SendPaymentRequest request)
         {
+            if (request.Amount <= 0)
+                return BadRequest("Amount must be positive.");
+
+            if (string.IsNullOrEmpty(request.ToEmail))
+                return BadRequest("Invalid email address.");
+
+            if ((request.WithReceipts || request.WithStatement) && request.Transactions is null)
+                return BadRequest("No transactions provided.");
+
             var bunqTab = CreatePaymentRequest(
                 request.Amount,
                 request.Currency,

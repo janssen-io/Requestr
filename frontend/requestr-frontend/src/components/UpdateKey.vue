@@ -19,7 +19,8 @@ export default {
   methods: {
     putKey: async function () {
       let token = window.localStorage.getItem('token');
-      let response = await fetch('https://localhost:44352/api/users/apikey',{
+      let url = new URL(`${process.env.VUE_APP_API}/api/users/apikey`);
+      let response = await fetch(url, {
         method: 'PUT',
         credentials: 'same-origin',
         mode: 'cors',

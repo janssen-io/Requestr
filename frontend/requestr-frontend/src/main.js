@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 
 import Login from './components/Login'
 import UpdateKey from './components/UpdateKey'
-import TransactionList from './components/TransactionList'
+import CreatePaymentRequest from './components/CreatePaymentRequest'
 
 Vue.use(VueRouter);
 Vue.config.productionTip = false
@@ -13,7 +13,7 @@ const router = new VueRouter({
     { path: '/', component: Login },
     { path: '/app/login', component: Login },
     { path: '/app/apikey', component: UpdateKey },
-    { path: '/app/transactions', component: TransactionList },
+    { path: '/app/transactions', component: CreatePaymentRequest },
   ]
 })
 

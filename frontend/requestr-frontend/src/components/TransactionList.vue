@@ -5,17 +5,20 @@
         <input type="submit" v-on:click="fetchTransactions">
         <div id="transaction-list">
             <li v-for="t in transactions" :key="t.id">
-                <input type="checkbox" v-bind:value="t" v-model="selectedTransactions" />{{t.description}}
+                <input 
+                  type="checkbox" 
+                  v-bind:value="t" 
+                  v-model="selectedTransactions"
+                />{{t.description}}
             </li>
         </div>
-
-        {{ total }}
     </div>
 </template>
 
 <script>
 export default { 
   name: 'TransactionList',
+  prop: ['value'],
   components: { },
   data: function() {
     return {
@@ -25,19 +28,22 @@ export default {
         selectedTransactions: []
     }
   },
-  computed: {
-      total: function() { 
-          return this.selectedTransactions.reduce((acc, curr) => acc - curr.amount, 0).toFixed(2);
-        }
+  watch: {
+    selectedTransactions: function () {
+      this.emitSelection();
+    }
   },
   methods: {
+      emitSelection: function () {
+        this.$emit('input', this.selectedTransactions);
+      },
       fetchTransactions: async function() {
       let data = {
         from: this.from,
         upTo: this.upTo
       }
       let token = window.localStorage.getItem('token');
-      let url = new URL('https://localhost:44352/api/transactions')
+      let url = new URL(`${process.env.VUE_APP_API}/api/transactions`);
       Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
       let authResult = await fetch(url, {
         method: 'GET',
