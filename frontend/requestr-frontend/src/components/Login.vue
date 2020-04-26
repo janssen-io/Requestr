@@ -1,9 +1,29 @@
 <template>
     <div>
-        <input type="text" v-model="username" />
-        <input type="password" v-model="password" />
-        <input type="submit" v-on:click="authenticate" />
-        <span class="error">{{ message }}</span>
+        <div class="field">
+          <label class="label">Username</label>
+          <div class="control has-icons-left">
+            <span class="icon is-small is-left">
+              <i class="fa fa-user"></i>
+            </span>
+            <input class="input" type="text" v-model="username" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="control has-icons-left">
+            <span class="icon is-small is-left">
+              <i class="fa fa-key"></i>
+            </span>
+            <input class="input" type="password" v-model="password" />
+          </div>
+          <p class="help is-danger">{{ message }}</p>
+        </div>
+        <button 
+          class="button is-primary" 
+          v-bind:class="{ 'is-loading': isLoading }"
+          type="submit" 
+          v-on:click="authenticate">Login</button>
     </div>
 </template>
 
@@ -15,10 +35,12 @@ export default {
     return {
       username: "",
       password: "",
-      message: ""
+      message: "",
+      isLoading: false
   }},
   methods: {
     authenticate: async function() {
+      this.isLoading = true;
       let data = {
         username: this.username,
         password: this.password
@@ -42,6 +64,7 @@ export default {
         }
       }
       else {
+          this.isLoading = false;
           this.message = "Unable to login with these credentials.";
       }
     }

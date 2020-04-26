@@ -1,9 +1,8 @@
 <template>
-    <div>Home</div>
+    <router-view/>
 </template>
 
 <script>
-
 export default {
   name: 'App',
   components: { },
@@ -13,12 +12,12 @@ export default {
 </script>
 
 <style>
-#app {
+#container {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 60px auto 0 auto;
+  width: 720px;
 }
 </style>

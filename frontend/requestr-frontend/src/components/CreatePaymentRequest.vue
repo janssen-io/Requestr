@@ -2,15 +2,20 @@
     <div>
       <div v-if="isSelecting">
         <TransactionList v-model="transactions"></TransactionList>
-        <button v-on:click="isSelecting = false">Create request</button>
+        <div class="has-text-centered">
+        <button 
+          class="button is-primary"
+          v-if="+total > 0"
+          v-on:click="isSelecting=false"> Create request</button>
+          </div>
       </div>
       <div v-else>
         <div>Total: {{ total }}</div>
         <input type="email" v-model="recipient">
         <input type="number" v-model="numberOfPeople">
         <textarea v-model="description"></textarea>
-        <button v-on:click="isSelecting = true">Change selection</button>
-        <button v-on:click="sendPaymentRequest">Send payment request</button>
+        <button v-on:click="isSelecting=true">Change selection</button>
+        <button class="button is-primary" v-on:click="sendPaymentRequest">Send payment request</button>
         {{ message }}
       </div>
     </div>
@@ -24,7 +29,7 @@ export default {
   components: { TransactionList },
   data: function() {
     return {
-      transactions: [],
+      transactions: {},
       recipient: "",
       description: "",
       isSelecting: true,
@@ -41,7 +46,10 @@ export default {
   },
   computed: {
       total: function() { 
-          let sum = this.transactions.reduce((acc, curr) => acc - curr.amount, 0)
+          let sum = 0;
+          for(let key in this.transactions) {
+            sum = sum - this.transactions[key].amount;
+          }
           let dividedSum = sum / this.numberOfPeople; 
           return dividedSum.toFixed(2);
         }

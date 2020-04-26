@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import Login from './components/Login'
 import UpdateKey from './components/UpdateKey'
 import CreatePaymentRequest from './components/CreatePaymentRequest'
+import App from './App'
 
 Vue.use(VueRouter);
 Vue.config.productionTip = false
@@ -18,5 +19,6 @@ const router = new VueRouter({
 })
 
 new Vue({
-  router: router
+  router: router,
+  render: h => h(App)
 }).$mount('#app')
