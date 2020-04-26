@@ -33,7 +33,6 @@ export default {
     methods: {
         updateSelection: function() {
             this.isSelected = !this.isSelected;
-            console.log('model: ', this.modelValue, typeof this.modelValue);
             if (Array.isArray(this.modelValue) || typeof this.modelValue === 'undefined') {
                 if (this.isSelected) {
                     this.modelValue.push(this.transaction);

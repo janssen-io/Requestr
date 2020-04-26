@@ -1,5 +1,10 @@
 <template>
-    <router-view/>
+    <div>
+      <div class="app-title ha-text-centered">
+        <h1 class="title is-size-5">Requestr for Bunq</h1>
+      </div>
+      <router-view/>
+    </div>
 </template>
 
 <script>
@@ -17,7 +22,10 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin: 60px auto 0 auto;
+  margin: 20px auto;
   width: 720px;
+}
+.app-title {
+  margin-bottom: 20px;
 }
 </style>

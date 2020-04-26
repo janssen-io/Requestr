@@ -35,8 +35,8 @@ export default {
   components: { TransactionRow },
   data: function() {
     return {
-        from: undefined,
-        upTo: undefined,
+        from: this.addDays(new Date(), -7).toISOString().substring(0, 10),
+        upTo: new Date().toISOString().substring(0, 10),
         transactions: [],
         selectedTransactions: [],
         isLoading: false
@@ -48,11 +48,13 @@ export default {
     }
   },
   methods: {
+      addDays: function (date, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      },
       emitSelection: function () {
         this.$emit('input', this.selectedTransactions);
-      },
-      updateSelection: function (event) {
-        console.log(event);
       },
       fetchTransactions: async function() {
         this.isLoading = true;
