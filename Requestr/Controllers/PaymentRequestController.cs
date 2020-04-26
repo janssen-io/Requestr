@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,11 +39,14 @@ namespace Requestr.Controllers
             if (request.Amount <= 0)
                 return BadRequest("Amount must be positive.");
 
-            if (string.IsNullOrEmpty(request.ToEmail))
-                return BadRequest("Invalid email address.");
-
             if ((request.WithReceipts || request.WithStatement) && request.Transactions is null)
                 return BadRequest("No transactions provided.");
+
+            if (request.Recipients.Length == 0)
+                return BadRequest("No recipients provided.");
+
+            if (request.Recipients.Any(email => !IsValidEmail(email)))
+                return BadRequest("One or more of the provided e-mail addresses is invalid.");
 
             var bunqTab = CreatePaymentRequest(
                 request.Amount,
@@ -67,11 +72,23 @@ namespace Requestr.Controllers
                 Currency = request.Currency,
                 Link = new Uri(bunqmeTabShareUrl),
                 Description = request.Description,
-                ToEmail = request.ToEmail,
-                ToPhone = request.ToPhone,
+                ToEmail = string.Join(',',request.Recipients),
                 User = user
             });
             dbContext.SaveChanges();
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private BunqMeTab CreatePaymentRequest(decimal amount, string currency, string description)
@@ -87,9 +104,11 @@ namespace Requestr.Controllers
 
         private async Task<bool> SendMail(string senderName, SendPaymentRequest r1, string requestUrl)
         {
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            var senderTitleCase = textInfo.ToTitleCase(senderName);
             var body = new StringBuilder();
             body.AppendLine("Hello!");
-            body.AppendLine($"{senderName} requests you to pay {r1.Currency} {r1.Amount}.");
+            body.AppendLine($"{senderTitleCase} requests you to pay {r1.Currency} {r1.Amount}.");
             if (!string.IsNullOrEmpty(r1.Description))
             {
                 body.AppendLine();
@@ -103,6 +122,15 @@ namespace Requestr.Controllers
             {
                 Version = ApiVersion.V3_1,
             };
+            var recipients = new JArray();
+            foreach (var recipient in r1.Recipients)
+            {
+                recipients.Add(new JObject
+                {
+                    { "Email", recipient },
+                    { "Name", recipient }
+                });
+            }
             MailjetRequest request = new MailjetRequest
             {
                 Resource = Send.Resource,
@@ -113,13 +141,8 @@ namespace Requestr.Controllers
                         {"Email", mailConfig.SenderAddress},
                         {"Name", "Requestr"}
                     }},
-                    {"To", new JArray {
-                        new JObject {
-                           {"Email", r1.ToEmail },
-                           {"Name", r1.ToEmail }
-                        }
-                    }},
-                    {"Subject", $"New payment request from {senderName}"},
+                    {"Bcc", recipients },
+                    {"Subject", $"New payment request from {senderTitleCase}"},
                     {"TextPart", body.ToString()},
                 }
             });
