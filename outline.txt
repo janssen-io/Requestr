@@ -1,11 +1,14 @@
 TODO:
+[ ] 2FA for login/registration
+[ ] Add subrouting to view payment request (allows for refresh and link in e-mail).
 [ ] Proper return values from API (i.e. errors wrapped in { error: "message" })
 [ ] Send Created and Counter Party properties of transaction to front-end
 [x] Add option to divide the amount (default: 2)
 [ ] Protect routes in frontend if token is not present or has expired
-[ ] styling (general styling, show errors, add navigation to update apikey)
+[x] styling (general styling, show errors
+[ ] add navigation to update apikey)
 [ ] implement 'add bank statement' option
-[ ] Add option for multiple e-mail addresses (auto-update divisor?)
+[x] Add option for multiple e-mail addresses 
 [ ] implement 'add receipts' option
 
 

@@ -28,10 +28,9 @@ namespace Requestr.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     Description = table.Column<string>(nullable: false),
                     Amount = table.Column<decimal>(nullable: false),
-                    ToEmail = table.Column<string>(nullable: false),
-                    ToPhone = table.Column<string>(nullable: true),
+                    Recipients = table.Column<string>(nullable: false),
                     Currency = table.Column<string>(nullable: false),
-                    AttachmentId = table.Column<Guid?>(nullable: true),
+                    AttachmentId = table.Column<Guid>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false),
                     Link = table.Column<string>(nullable: false)
                 },
@@ -46,6 +45,31 @@ namespace Requestr.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OtpPaymentRequest",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(nullable: false),
+                    Password = table.Column<string>(nullable: false),
+                    PaymentRequestId = table.Column<Guid>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtpPaymentRequest", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_OtpPaymentRequest_PaymentRequests_PaymentRequestId",
+                        column: x => x.PaymentRequestId,
+                        principalTable: "PaymentRequests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtpPaymentRequest_PaymentRequestId",
+                table: "OtpPaymentRequest",
+                column: "PaymentRequestId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentRequests_UserId",
                 table: "PaymentRequests",
@@ -54,6 +78,9 @@ namespace Requestr.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "OtpPaymentRequest");
+
             migrationBuilder.DropTable(
                 name: "PaymentRequests");
 

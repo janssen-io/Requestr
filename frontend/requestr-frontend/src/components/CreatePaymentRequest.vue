@@ -141,7 +141,7 @@ export default {
     sendPaymentRequest: async function() {
       let data = {
         description: this.description,
-        amount: this.total / this.amountOfPeople,
+        amount: this.total / this.numberOfPeople,
         currency: "EUR",
         recipients: this.recipients.concat(this.mainRecipient)
       };

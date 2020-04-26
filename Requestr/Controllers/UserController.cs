@@ -67,14 +67,13 @@ namespace Requestr.Controllers
         {
             var isUnique = !this.dbContext.User.Where(user => user.Username == registrationRequest.Username).Any();
             if (!isUnique)
-            {
-                return BadRequest();
-            }
+                return BadRequest("User already exists.");
 
             if (registrationRequest.Password.Length < 8)
-            {
-                return BadRequest();
-            }
+                return BadRequest("Password should be at least 8 characters.");
+
+            if (!IsValidEmail(registrationRequest.Username))
+                return BadRequest("Username is not a valid e-mail address.");
 
             var user = AddUser(registrationRequest.Username, registrationRequest.Password);
             return new AuthorizationToken(
@@ -124,6 +123,19 @@ namespace Requestr.Controllers
             string saltStr = Convert.ToBase64String(salt);
 
             return (Hash(password, saltStr), saltStr);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

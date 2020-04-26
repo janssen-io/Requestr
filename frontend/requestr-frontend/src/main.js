@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import Login from './components/Login'
 import UpdateKey from './components/UpdateKey'
 import CreatePaymentRequest from './components/CreatePaymentRequest'
+import ViewPaymentRequest from './components/ViewPaymentRequest'
 import App from './App'
 
 Vue.use(VueRouter);
@@ -15,6 +16,7 @@ const router = new VueRouter({
     { path: '/app/login', component: Login },
     { path: '/app/apikey', component: UpdateKey },
     { path: '/app/transactions', component: CreatePaymentRequest },
+    { path: '/app/transactions/:id', component: ViewPaymentRequest, props: true },
   ]
 })
 

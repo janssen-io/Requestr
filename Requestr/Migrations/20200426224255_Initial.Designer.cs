@@ -10,7 +10,7 @@ using Requestr.Data;
 namespace Requestr.Migrations
 {
     [DbContext(typeof(RequestrContext))]
-    [Migration("20200424100241_Initial")]
+    [Migration("20200426224255_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,29 @@ namespace Requestr.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PaymentRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("PaymentRequestId");
+
+                    b.ToTable("OtpPaymentRequest");
+                });
 
             modelBuilder.Entity("Requestr.Data.PaymentRequest", b =>
                 {
@@ -45,11 +68,7 @@ namespace Requestr.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ToEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ToPhone")
+                    b.Property<string>("Recipients")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -84,6 +103,15 @@ namespace Requestr.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
+                {
+                    b.HasOne("Requestr.Data.PaymentRequest", "PaymentRequest")
+                        .WithMany()
+                        .HasForeignKey("PaymentRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Requestr.Data.PaymentRequest", b =>
