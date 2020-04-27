@@ -16,6 +16,7 @@
           </div>
         </div>
       </div>
+      <p class="error">{{ message }}</p>
         <ul id="transaction-list">
             <TransactionRow
               v-for="t in transactions" :key="t.id"
@@ -39,7 +40,8 @@ export default {
         upTo: new Date().toISOString().substring(0, 10),
         transactions: [],
         selectedTransactions: [],
-        isLoading: false
+        isLoading: false,
+        message: ""
     }
   },
   watch: {
@@ -66,7 +68,7 @@ export default {
         let token = window.localStorage.getItem('token');
         let url = new URL(`${process.env.VUE_APP_API}/api/transactions`);
         Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
-        let authResult = await fetch(url, {
+        let transactionRequest = await fetch(url, {
           method: 'GET',
           credentials: 'same-origin',
           mode: 'cors',
@@ -76,13 +78,11 @@ export default {
           },
         });
         this.isLoading = false;
-        if (authResult.ok) {
-          var response = await authResult.json();
-          console.log(response);
-          this.transactions = response;
+        if (transactionRequest.ok) {
+          this.transactions = await transactionRequest.json();
         }
         else {
-            console.log(authResult);
+          this.message = await transactionRequest.text();
         }
     }
   }
