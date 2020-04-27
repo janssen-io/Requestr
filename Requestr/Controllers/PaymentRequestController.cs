@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,15 +27,20 @@ namespace Requestr.Controllers
     {
         private readonly RequestrContext dbContext;
         private readonly MailConfiguration mailConfig;
+        private readonly EmailService emailService;
 
-        public PaymentRequestController(RequestrContext dbContext, IOptions<MailConfiguration> mailConfig)
+        public PaymentRequestController(
+            RequestrContext dbContext,
+            IOptions<MailConfiguration> mailConfig,
+            EmailService emailService)
         {
             this.dbContext = dbContext;
             this.mailConfig = mailConfig.Value;
+            this.emailService = emailService;
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize(Roles = Roles.User)]
         public async Task<ActionResult<PaymentRequestResponse>> SendRequest(SendPaymentRequest request)
         {
             if (request.Amount <= 0)
@@ -60,7 +63,7 @@ namespace Requestr.Controllers
             var paymentRequestId = AddToDatabase(request, bunqTab.BunqmeTabShareUrl);
 
             var username = User.Claims.First(c => c.Type == TokenService.UsernameClaim).Value;
-            var isMailSent = await SendMail(username, request, bunqTab.BunqmeTabShareUrl);
+            var isMailSent = await SendPaymentRequest(username, request, bunqTab.BunqmeTabShareUrl);
 
             return new PaymentRequestResponse(paymentRequestId, bunqTab.BunqmeTabShareUrl, isMailSent);
         }
@@ -106,52 +109,25 @@ namespace Requestr.Controllers
             return this.Ok(otp.PaymentRequest);
         }
 
-        private async Task<bool> SendOneTimePassword(PaymentRequest paymentRequest, string email)
+        private async Task<bool> SendOneTimePassword(PaymentRequest paymentRequest, string recipient)
         {
-            byte[] salt = new byte[8];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(salt);
-            }
-
-            string otp = Convert.ToBase64String(salt).Substring(0, 8);
+            string otp = RSG.Generate(8);
             dbContext.OneTimePasswordForPaymentRequests.Add(new OneTimePasswordForPaymentRequest
             {
-                id = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 Password = otp,
                 PaymentRequest = paymentRequest,
                 CreatedOn = DateTime.UtcNow
             });
             dbContext.SaveChanges();
 
-            MailjetClient client = new MailjetClient(mailConfig.PublicKey, mailConfig.PrivateKey)
-            {
-                Version = ApiVersion.V3_1,
-            };
-            var recipient = new JArray();
-            recipient.Add(new JObject
-            {
-                { "Email", email },
-                { "Name", email }
-            });
-            MailjetRequest request = new MailjetRequest
-            {
-                Resource = Send.Resource,
-            }
-            .Property(Send.Messages, new JArray {
-                new JObject {
-                    {"From", new JObject {
-                        {"Email", mailConfig.SenderAddress},
-                        {"Name", "Requestr"}
-                    }},
-                    {"To", recipient },
-                    {"Subject", "One time password for Payment Request"},
-                    {"TextPart", $"Your one time password is: {otp}"},
-                }
-            });
-            MailjetResponse response = await client.PostAsync(request);
-            return response.IsSuccessStatusCode;
+            var email = new MailBuilder(this.mailConfig)
+                .WithBody($"Your one time password is: {otp}")
+                .WithSubject("Your one time password.")
+                .AddRecipients(recipient)
+                .Build();
 
+            return await this.emailService.SendMail(email);
         }
 
         private Guid AddToDatabase(SendPaymentRequest request, string bunqmeTabShareUrl)
@@ -199,7 +175,7 @@ namespace Requestr.Controllers
             return BunqMeTab.Get(requestId.Value).Value;
         }
 
-        private async Task<bool> SendMail(string sender, SendPaymentRequest r1, string requestUrl)
+        private async Task<bool> SendPaymentRequest(string sender, SendPaymentRequest r1, string requestUrl)
         {
             var body = new StringBuilder();
             body.AppendLine("Hello!");
@@ -213,42 +189,14 @@ namespace Requestr.Controllers
             body.AppendLine();
             body.AppendLine($"Pay here: {requestUrl}");
 
-            MailjetClient client = new MailjetClient(mailConfig.PublicKey, mailConfig.PrivateKey)
-            {
-                Version = ApiVersion.V3_1,
-            };
-            var recipients = new JArray();
-            foreach (var recipient in r1.Recipients)
-            {
-                recipients.Add(new JObject
-                {
-                    { "Email", recipient },
-                    { "Name", recipient }
-                });
-            }
-            MailjetRequest request = new MailjetRequest
-            {
-                Resource = Send.Resource,
-            }
-            .Property(Send.Messages, new JArray {
-                new JObject {
-                    {"From", new JObject {
-                        {"Email", mailConfig.SenderAddress},
-                        {"Name", "Requestr"}
-                    }},
-                    {"To", new JArray { 
-                        new JObject {
-                            { "Email", sender },
-                            { "Name", sender }
-                        }
-                    }},
-                    {"Bcc", recipients },
-                    {"Subject", $"New payment request from {sender}"},
-                    {"TextPart", body.ToString()},
-                }
-            });
-            MailjetResponse response = await client.PostAsync(request);
-            return response.IsSuccessStatusCode;
+            var email = new MailBuilder(this.mailConfig)
+                .WithBody(body.ToString())
+                .WithSubject($"New payment request from {sender}")
+                .AddRecipients(sender)
+                .AddBccRecipients(r1.Recipients)
+                .Build();
+
+            return await this.emailService.SendMail(email);
         }
     }
 }

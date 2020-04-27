@@ -39,13 +39,15 @@ namespace Requestr
             services.Configure<BunqConfiguration>(Configuration.GetSection("Bunq"));
             services.Configure<MailConfiguration>(Configuration.GetSection("Mail"));
             services.AddSingleton<TokenService>();
+            services.AddSingleton<EmailService>();
             services.AddTransient<BunqInitializer>();
             services.AddTransient<TransactionReader>();
 
             services.AddAuthorization(
                 options => options.DefaultPolicy =
                     new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                        .RequireAuthenticatedUser().Build());
+                        .RequireAuthenticatedUser()
+                        .Build());
 
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,6 +85,7 @@ namespace Requestr
                 builder.AllowAnyMethod();
             });
 
+            app.UseAuthentication(); // authentication before authorization!
             app.UseAuthorization();
             app.UseMiddleware<RestoreContextMiddleware>();
             app.UseEndpoints(endpoints =>

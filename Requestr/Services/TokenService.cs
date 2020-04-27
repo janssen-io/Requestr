@@ -4,7 +4,9 @@ using Requestr.Configuration;
 using Requestr.Data;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Requestr.Services
@@ -12,7 +14,7 @@ namespace Requestr.Services
     public class TokenService
     {
         public const string UserIdClaim = "uid";
-        public const string UsernameClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn";
+        public const string UsernameClaim = ClaimTypes.Upn;
         private readonly TokenConfiguration config;
 
         public TokenService(IOptions<TokenConfiguration> configuration)
@@ -20,14 +22,17 @@ namespace Requestr.Services
             this.config = configuration.Value;
         }
 
-        public string Create(User user)
+        public string Create(User user, string[] roles)
         {
+            var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
+            var userClaims = new Claim[]
+            {
+                new Claim(UserIdClaim, user.Id.ToString()),
+                new Claim(UsernameClaim, user.Username),
+            };
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]{
-                    new Claim(UserIdClaim, user.Id.ToString()),
-                    new Claim(UsernameClaim, user.Username)
-                }),
+                Subject = new ClaimsIdentity(userClaims.Concat(roleClaims)),
                 Expires = DateTime.UtcNow.AddMinutes(config.ExpirationInMinutes),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(
@@ -36,7 +41,6 @@ namespace Requestr.Services
                 Issuer = config.Issuer,
                 Audience = config.Issuer
             };
-
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);

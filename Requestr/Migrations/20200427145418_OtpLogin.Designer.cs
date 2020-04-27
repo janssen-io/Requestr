@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Requestr.Data;
@@ -9,9 +10,10 @@ using Requestr.Data;
 namespace Requestr.Migrations
 {
     [DbContext(typeof(RequestrContext))]
-    partial class RequestrContextModelSnapshot : ModelSnapshot
+    [Migration("20200427145418_OtpLogin")]
+    partial class OtpLogin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

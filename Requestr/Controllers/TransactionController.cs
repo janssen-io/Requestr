@@ -1,9 +1,8 @@
-﻿using Bunq.Sdk.Context;
-using Bunq.Sdk.Model.Generated.Endpoint;
+﻿using Bunq.Sdk.Model.Generated.Endpoint;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Requestr.Configuration;
 using Requestr.Controllers.Data;
 using Requestr.Data;
 using Requestr.Services;
@@ -11,14 +10,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Requestr.Controllers
 {
 
     [Route("api/transactions")]
     [ApiController]
-    public class TransactionController
+    public class TransactionController : ControllerBase
     {
         private readonly ILogger<UserController> logger;
         private readonly RequestrContext dbContext;
@@ -32,9 +30,10 @@ namespace Requestr.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = Roles.User)]
         public ActionResult<List<Transaction>> Index([FromQuery] TransactionFilter filterParameters)
         {
+            var u = User.IsInRole(Roles.User);
             var paymentsInRange = new List<Payment>();
             foreach (var transaction in this.reader.Read())
             {

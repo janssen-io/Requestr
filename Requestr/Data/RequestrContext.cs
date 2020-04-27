@@ -8,6 +8,7 @@ namespace Requestr.Data
         public DbSet<User> User { get; set; }
         public DbSet<PaymentRequest> PaymentRequests { get; set; }
         public DbSet<OneTimePasswordForPaymentRequest> OneTimePasswordForPaymentRequests { get; set; }
+        public DbSet<OneTimePasswordForLogin> OneTimePasswordForLogin { get; set; }
 
         public RequestrContext(DbContextOptions<RequestrContext> options) : base(options) { }
 
@@ -16,6 +17,7 @@ namespace Requestr.Data
             builder.Entity<User>().ToTable("Users");
             builder.Entity<PaymentRequest>().ToTable("PaymentRequests");
             builder.Entity<OneTimePasswordForPaymentRequest>().ToTable("OtpPaymentRequest");
+            builder.Entity<OneTimePasswordForLogin>().ToTable("OtpLogin");
         }
     }
 
@@ -41,7 +43,7 @@ namespace Requestr.Data
 
     public class OneTimePasswordForPaymentRequest
     {
-        public Guid id { get; set; }
+        public Guid Id { get; set; }
         public string Password { get; set; }
         public PaymentRequest PaymentRequest { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -49,8 +51,9 @@ namespace Requestr.Data
 
     public class OneTimePasswordForLogin
     {
-        public Guid id { get; set; }
+        public Guid Id { get; set; }
         public string Password { get; set; }
         public User User { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }
