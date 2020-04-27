@@ -19,6 +19,13 @@
         <span>Change selection</span>
       </button>
 
+      <TransactionRow
+        v-for="t in transactions" :key="t.id"
+        v-bind:value="t"
+        v-bind:modelValue="true"
+        v-bind:disabled="true"
+        ></TransactionRow>
+
       <br />
       <br />
 
@@ -100,10 +107,11 @@
 
 <script>
 import TransactionList from "./TransactionList";
+import TransactionRow from "./TransactionRow";
 
 export default {
   name: "CreatePaymentRequest",
-  components: { TransactionList },
+  components: { TransactionList, TransactionRow },
   data: function() {
     return {
       transactions: {},
@@ -143,7 +151,7 @@ export default {
         description: this.description,
         amount: this.total / this.numberOfPeople,
         currency: "EUR",
-        recipients: this.recipients.concat(this.mainRecipient)
+        recipients: this.recipients.filter(Boolean).concat(this.mainRecipient)
       };
       let token = window.localStorage.getItem("token");
       let url = new URL(`${process.env.VUE_APP_API}/api/requests`);

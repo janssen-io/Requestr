@@ -19,19 +19,22 @@
 <script>
 export default {
     name: 'TransactionRow',
-    props: ['value', 'modelValue'],
+    props: ['value', 'modelValue', 'disabled'],
     model: {
         prop: 'modelValue',
         event: 'change'
     },
     data: function () {
         return {
-            isSelected: false,
+            isSelected: this.modelValue === true,
             transaction: this.value
         }
     },
     methods: {
         updateSelection: function() {
+            if (this.disabled) {
+                return;
+            }
             this.isSelected = !this.isSelected;
             if (Array.isArray(this.modelValue) || typeof this.modelValue === 'undefined') {
                 if (this.isSelected) {
