@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,6 +8,7 @@ using System.Threading.Tasks;
 using Bunq.Sdk.Http;
 using Bunq.Sdk.Model.Generated.Endpoint;
 using Bunq.Sdk.Model.Generated.Object;
+using CsvHelper;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
 using Microsoft.AspNetCore.Authorization;
@@ -193,10 +196,23 @@ namespace Requestr.Controllers
                 .WithBody(body.ToString())
                 .WithSubject($"New payment request from {sender}")
                 .AddRecipients(sender)
-                .AddBccRecipients(r1.Recipients)
-                .Build();
+                .AddBccRecipients(r1.Recipients);
 
-            return await this.emailService.SendMail(email);
+            if (r1.WithStatement)
+            {
+                using var file = new MemoryStream();
+                using var fileWriter = new StreamWriter(file);
+                using var fileReader = new StreamReader(file);
+                var csvHelper = new CsvWriter(fileWriter, CultureInfo.InvariantCulture);
+                csvHelper.WriteHeader(typeof(Data.Transaction));
+                csvHelper.WriteRecords(r1.Transactions);
+                csvHelper.Flush();
+                var fileBytes = file.ToArray();
+
+                email.WithAttachment("payments.csv", "text/csv", Convert.ToBase64String(fileBytes));
+            }
+
+            return await this.emailService.SendMail(email.Build());
         }
     }
 }

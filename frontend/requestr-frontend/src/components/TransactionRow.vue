@@ -6,7 +6,7 @@
             </div>
             <div class="column grow">
                 <h1>{{ transaction.counterParty }}</h1>
-                <h2>{{ transaction.account }}</h2> <!-- TODO: get counterPartyAccount -->
+                <h2>{{ transaction.counterPartyIban }}</h2>
                 <p class="description">{{ transaction.description }}</p>
             </div>
             <div class="column" style="width: 150px">

@@ -33,7 +33,6 @@ namespace Requestr.Controllers
         [Authorize(Roles = Roles.User)]
         public ActionResult<List<Transaction>> Index([FromQuery] TransactionFilter filterParameters)
         {
-            var u = User.IsInRole(Roles.User);
             var paymentsInRange = new List<Payment>();
             foreach (var transaction in this.reader.Read())
             {
@@ -53,12 +52,14 @@ namespace Requestr.Controllers
         private Transaction MapToTransaction(Payment payment) =>
             new Transaction
             {
-                Account = payment.Alias.LabelMonetaryAccount.Iban,
-                CounterParty = payment.CounterpartyAlias.LabelMonetaryAccount.DisplayName,
-                Description = payment.Description,
                 Id = (int)payment.Id!,
+                Account = payment.Alias.LabelMonetaryAccount.Iban,
                 Amount = decimal.Parse(payment.Amount.Value, NumberStyles.Currency),
-                Currency = payment.Amount.Currency
+                CounterParty = payment.CounterpartyAlias.LabelMonetaryAccount.DisplayName,
+                CounterPartyIban = payment.CounterpartyAlias.LabelMonetaryAccount.Iban,
+                CreatedOn = DateTime.Parse(payment.Created),
+                Currency = payment.Amount.Currency,
+                Description = payment.Description,
             };
     }
 }

@@ -38,6 +38,8 @@ namespace Requestr.Services
         private string subject = "";
         private string body = "";
 
+        private Attachment? attachment;
+
         public MailBuilder(MailConfiguration config)
         {
             this.config = config;
@@ -76,6 +78,18 @@ namespace Requestr.Services
             return this;
         }
 
+        public MailBuilder WithAttachment(string name, string type, string base64)
+        {
+            this.attachment = new Attachment
+            {
+                Name = name,
+                ContentType = type,
+                ContentBase64 = base64
+            };
+
+            return this;
+        }
+
         public MailjetRequest Build()
         {
             var to = new JArray();
@@ -98,6 +112,17 @@ namespace Requestr.Services
                 });
             }
 
+            var attachments = new JArray();
+            if (this.attachment != null)
+            {
+                attachments.Add(new JObject
+                {
+                    { "Filename", this.attachment.Name },
+                    { "Base64Content", this.attachment.ContentBase64 },
+                    { "ContentType", this.attachment.ContentType }
+                });
+            }
+
             return new MailjetRequest { Resource = Send.Resource, }
                 .Property(Send.Messages, new JArray {
                     new JObject {
@@ -109,8 +134,16 @@ namespace Requestr.Services
                         {"Bcc", bcc},
                         {"Subject", this.subject},
                         {"TextPart", this.body},
+                        {"Attachments", attachments}
                     }
             });
+        }
+
+        private class Attachment
+        {
+            public string Name { get; set; }
+            public string ContentType { get; set; }
+            public string ContentBase64 { get; set; }
         }
     }
 

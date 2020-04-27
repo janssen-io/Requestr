@@ -17,13 +17,16 @@
         </div>
       </div>
       <p class="error">{{ message }}</p>
-        <ul id="transaction-list">
-            <TransactionRow
-              v-for="t in transactions" :key="t.id"
-              v-bind:value="t"
-              v-model="selectedTransactions"
-              ></TransactionRow>
-        </ul>
+        <div id="transaction-list">
+            <div class="date-group" v-for="(groupedTransactions, date) in groupedTransactions" :key="date">
+              <h4 class="title is-size-7">{{ date }}</h4>
+              <TransactionRow
+                v-for="t in groupedTransactions" :key="t.id"
+                v-bind:value="t"
+                v-model="selectedTransactions"
+                ></TransactionRow>
+            </div> 
+        </div>
     </div>
 </template>
 
@@ -49,7 +52,19 @@ export default {
       this.emitSelection();
     }
   },
+  computed: {
+    groupedTransactions: function () {
+      return this.groupByDate(this.transactions);
+    }
+  },
   methods: {
+      groupByDate: function(transactions) {
+        return transactions.reduce(function(rv, trx) {
+          let key = new Date(trx.createdOn).toLocaleString().substring(0, 10);
+          (rv[key] = rv[key] || []).push(trx);
+          return rv;
+        }, {});
+      },
       addDays: function (date, days) {
         var result = new Date(date);
         result.setDate(result.getDate() + days);
