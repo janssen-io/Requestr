@@ -42,29 +42,6 @@ namespace Requestr.Migrations
                     b.ToTable("OtpLogin");
                 });
 
-            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("PaymentRequestId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentRequestId");
-
-                    b.ToTable("OtpPaymentRequest");
-                });
-
             modelBuilder.Entity("Requestr.Data.PaymentRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -131,15 +108,6 @@ namespace Requestr.Migrations
                     b.HasOne("Requestr.Data.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
-                {
-                    b.HasOne("Requestr.Data.PaymentRequest", "PaymentRequest")
-                        .WithMany()
-                        .HasForeignKey("PaymentRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

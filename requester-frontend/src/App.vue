@@ -3,7 +3,7 @@
       <div class="level" id="header">
         <div class="level-left">
           <h1 class="title is-size-5">
-            <router-link to="/app/transactions">Requestr for Bunq</router-link>
+            <router-link to="/app/createPaymentRequest">Requestr for Bunq</router-link>
           </h1>
         </div>
         <div class="level-right">

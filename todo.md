@@ -8,7 +8,7 @@
 [x] Send Created and Counter Party properties of transaction to front-end
 [x] implement 'add bank statement' option
 [x] add navigation to update apikey
-[ ] Remove ViewPaymentRequest (seems unnecessary considering an e-mail is sent to the sender)
+[x] Remove ViewPaymentRequest (seems unnecessary considering an e-mail is sent to the sender)
 [ ] Add Dockerfile
 [ ] Proper json bodies for errors
 [ ] implement 'add receipts' option?

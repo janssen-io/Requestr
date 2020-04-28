@@ -10,8 +10,8 @@ using Requestr.Data;
 namespace Requestr.Migrations
 {
     [DbContext(typeof(RequestrContext))]
-    [Migration("20200426224255_Initial")]
-    partial class Initial
+    [Migration("20200428184901_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,9 +21,9 @@ namespace Requestr.Migrations
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
+            modelBuilder.Entity("Requestr.Data.OneTimePasswordForLogin", b =>
                 {
-                    b.Property<Guid>("id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -34,14 +34,14 @@ namespace Requestr.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("PaymentRequestId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
-                    b.HasIndex("PaymentRequestId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("OtpPaymentRequest");
+                    b.ToTable("OtpLogin");
                 });
 
             modelBuilder.Entity("Requestr.Data.PaymentRequest", b =>
@@ -105,11 +105,11 @@ namespace Requestr.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Requestr.Data.OneTimePasswordForPaymentRequest", b =>
+            modelBuilder.Entity("Requestr.Data.OneTimePasswordForLogin", b =>
                 {
-                    b.HasOne("Requestr.Data.PaymentRequest", "PaymentRequest")
+                    b.HasOne("Requestr.Data.User", "User")
                         .WithMany()
-                        .HasForeignKey("PaymentRequestId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

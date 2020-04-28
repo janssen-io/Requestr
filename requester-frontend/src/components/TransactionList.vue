@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <p class="is-danger">{{ message }}</p>
+      <p class="help is-danger">{{ message }}</p>
         <div id="transaction-list">
             <div class="date-group" v-for="(groupedTransactions, date) in groupedTransactions" :key="date">
               <h4 class="title is-size-7">{{ date }}</h4>

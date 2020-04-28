@@ -109,7 +109,7 @@ export default {
         if(!response.isInitialized) {
             this.$router.push('/app/apikey');
         } else {
-            this.$router.push('/app/transactions')
+            this.$router.push('/app/createPaymentRequest')
         }
       }
       else {

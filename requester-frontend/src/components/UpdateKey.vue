@@ -47,7 +47,7 @@ export default {
       });
       this.isLoading = false;
       if (response.ok) {
-          this.$router.push('/app/transactions');
+          this.$router.push('/app/createPaymentRequest');
       }
       else {
           this.message = await response.text();

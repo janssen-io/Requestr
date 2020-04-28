@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Requestr.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -19,6 +19,26 @@ namespace Requestr.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OtpLogin",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Password = table.Column<string>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
+                    CreatedOn = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtpLogin", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OtpLogin_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -45,30 +65,10 @@ namespace Requestr.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "OtpPaymentRequest",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(nullable: false),
-                    Password = table.Column<string>(nullable: false),
-                    PaymentRequestId = table.Column<Guid>(nullable: false),
-                    CreatedOn = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OtpPaymentRequest", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_OtpPaymentRequest_PaymentRequests_PaymentRequestId",
-                        column: x => x.PaymentRequestId,
-                        principalTable: "PaymentRequests",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
-                name: "IX_OtpPaymentRequest_PaymentRequestId",
-                table: "OtpPaymentRequest",
-                column: "PaymentRequestId");
+                name: "IX_OtpLogin_UserId",
+                table: "OtpLogin",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentRequests_UserId",
@@ -79,7 +79,7 @@ namespace Requestr.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OtpPaymentRequest");
+                name: "OtpLogin");
 
             migrationBuilder.DropTable(
                 name: "PaymentRequests");
