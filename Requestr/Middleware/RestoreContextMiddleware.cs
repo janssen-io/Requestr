@@ -39,7 +39,12 @@ namespace Requestr.Middleware
                     }
                     catch(ArgumentException)
                     {
-                        if (!context.Request.Path.Value.EndsWith("users/apikey"))
+                        var exemptPaths = new string[]
+                        {
+                            "users/apikey",
+                            "users/token"
+                        };
+                        if (!exemptPaths.Any(context.Request.Path.Value.EndsWith))
                             throw;
                     }
                 }
