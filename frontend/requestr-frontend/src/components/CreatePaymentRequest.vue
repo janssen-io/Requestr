@@ -8,7 +8,12 @@
           v-bind:class="{disabled: +total <= 0}"
           v-bind:disabled="+total <= 0"
           v-on:click="isSelecting=false"
-        >Create request</button>
+        >
+          <span>Create request</span>
+          <span class="icon">
+            <i class="fa fa-chevron-right"></i>
+          </span>
+        </button>
       </div>
     </div>
     <div v-show="!isSelecting">
@@ -65,7 +70,7 @@
       <div class="field">
         <label class="label">Description</label>
         <div class="control">
-          <textarea class="textarea" v-model="description"></textarea>
+          <textarea class="textarea" maxlength="140" rows="2" v-model="description"></textarea>
         </div>
       </div>
 
@@ -89,6 +94,15 @@
       <div class="field">
         <div class="control has-text-right">
           <button class="button is-secondary" v-on:click="addRecipient">Add recipient</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <label class="checkbox">
+            <input type="checkbox" v-model="withStatement" />
+            Add bank statement
+          </label>
         </div>
       </div>
 
@@ -120,6 +134,7 @@ export default {
       description: "",
       isSelecting: true,
       numberOfPeople: 1,
+      withStatement: false,
       message: ""
     };
   },
@@ -149,9 +164,11 @@ export default {
     sendPaymentRequest: async function() {
       let data = {
         description: this.description,
-        amount: this.total / this.numberOfPeople,
+        amount: Math.round(this.total / this.numberOfPeople * 100) / 100, // bunq requires two digits
         currency: "EUR",
-        recipients: this.recipients.filter(Boolean).concat(this.mainRecipient)
+        recipients: this.recipients.filter(Boolean).concat(this.mainRecipient),
+        withStatement: true,
+        transactions: this.transactions
       };
       let token = window.localStorage.getItem("token");
       let url = new URL(`${process.env.VUE_APP_API}/api/requests`);

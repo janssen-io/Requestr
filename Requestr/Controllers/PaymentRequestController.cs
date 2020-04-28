@@ -178,16 +178,16 @@ namespace Requestr.Controllers
             return BunqMeTab.Get(requestId.Value).Value;
         }
 
-        private async Task<bool> SendPaymentRequest(string sender, SendPaymentRequest r1, string requestUrl)
+        private async Task<bool> SendPaymentRequest(string sender, SendPaymentRequest paymentRequest, string requestUrl)
         {
             var body = new StringBuilder();
             body.AppendLine("Hello!");
-            body.AppendLine($"{sender} requests you to pay {r1.Currency} {r1.Amount}.");
-            if (!string.IsNullOrEmpty(r1.Description))
+            body.AppendLine($"{sender} requests you to pay {paymentRequest.Currency} {paymentRequest.Amount}.");
+            if (!string.IsNullOrEmpty(paymentRequest.Description))
             {
                 body.AppendLine();
                 body.AppendLine("Description:");
-                body.AppendLine(r1.Description);
+                body.AppendLine(paymentRequest.Description);
             }
             body.AppendLine();
             body.AppendLine($"Pay here: {requestUrl}");
@@ -196,19 +196,22 @@ namespace Requestr.Controllers
                 .WithBody(body.ToString())
                 .WithSubject($"New payment request from {sender}")
                 .AddRecipients(sender)
-                .AddBccRecipients(r1.Recipients);
+                .AddBccRecipients(paymentRequest.Recipients);
 
-            if (r1.WithStatement)
+            if (paymentRequest.WithStatement)
             {
                 using var file = new MemoryStream();
-                using var fileWriter = new StreamWriter(file);
-                using var fileReader = new StreamReader(file);
-                var csvHelper = new CsvWriter(fileWriter, CultureInfo.InvariantCulture);
-                csvHelper.WriteHeader(typeof(Data.Transaction));
-                csvHelper.WriteRecords(r1.Transactions);
-                csvHelper.Flush();
-                var fileBytes = file.ToArray();
 
+                using (var fileWriter = new StreamWriter(file))
+                using (var csvHelper = new CsvWriter(fileWriter, CultureInfo.InvariantCulture))
+                {
+                    csvHelper.WriteHeader(typeof(Data.Transaction));
+                    csvHelper.Flush();
+                    fileWriter.WriteLine();
+                    csvHelper.WriteRecords(paymentRequest.Transactions.OrderByDescending(t => t.CreatedOn));
+                }
+
+                var fileBytes = file.ToArray();
                 email.WithAttachment("payments.csv", "text/csv", Convert.ToBase64String(fileBytes));
             }
 
