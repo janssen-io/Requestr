@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <p class="error">{{ message }}</p>
+      <p class="is-danger">{{ message }}</p>
         <div id="transaction-list">
             <div class="date-group" v-for="(groupedTransactions, date) in groupedTransactions" :key="date">
               <h4 class="title is-size-7">{{ date }}</h4>
@@ -40,7 +40,7 @@ export default {
   data: function() {
     return {
         from: this.addDays(new Date(), -7).toISOString().substring(0, 10),
-        upTo: new Date().toISOString().substring(0, 10),
+        upTo: this.addDays(new Date(), +1).toISOString().substring(0, 10),
         transactions: [],
         selectedTransactions: [],
         isLoading: false,

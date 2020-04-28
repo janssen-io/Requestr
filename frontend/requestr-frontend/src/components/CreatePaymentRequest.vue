@@ -106,7 +106,16 @@
         </div>
       </div>
 
-      <div class="has-text-centered">
+      <div 
+        class="notification" 
+        v-show="message" 
+        v-bind:class="{ 'is-success': success && isMailSent, 'is-warning': success && !isMailSent, 'is-danger': !success }">
+        <p v-show="success && !isMailSent">
+          &nbsp; Unfortunately, the e-mail could not be sent. Please copy and share the link manually.
+        </p>
+        {{ message }}
+      </div>
+      <div class="has-text-centered" v-show="!success">
         <button class="button is-medium is-primary" v-on:click="sendPaymentRequest">
           <span class="icon">
             <i class="fa fa-send"></i>
@@ -114,7 +123,6 @@
           <span>Send payment request</span>
         </button>
       </div>
-      {{ message }}
     </div>
   </div>
 </template>
@@ -135,7 +143,9 @@ export default {
       isSelecting: true,
       numberOfPeople: 1,
       withStatement: false,
-      message: ""
+      message: "",
+      isMailSent: false,
+      success: false
     };
   },
   watch: {
@@ -182,12 +192,15 @@ export default {
           Authorization: `Bearer ${token}`
         }
       });
-      let result = await response.json();
       if (response.ok) {
-        this.message = `Payment request: ${result.link}. E-mail sent: ${result.isMailSent}.`;
+        let result = await response.json();
+        this.message = `Your payment request is located at: ${result.link}.`;
+        this.success = true;
+        this.isMailSent = result.isMailSent;
       } else {
-        console.error(result);
+        let result = await response.text();
         this.message = result;
+        this.success = false;
       }
     }
   }

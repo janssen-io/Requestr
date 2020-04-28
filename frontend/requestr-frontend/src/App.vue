@@ -1,7 +1,14 @@
 <template>
-    <div>
-      <div class="app-title ha-text-centered">
-        <h1 class="title is-size-5">Requestr for Bunq</h1>
+    <div id="container">
+      <div class="level" id="header">
+        <div class="level-left">
+          <h1 class="title is-size-5">
+            <router-link to="/app/transactions">Requestr for Bunq</router-link>
+          </h1>
+        </div>
+        <div class="level-right">
+          <router-link to="/app/apikey">API key</router-link> 
+        </div>
       </div>
       <router-view/>
     </div>
@@ -25,7 +32,8 @@ export default {
   margin: 20px auto;
   width: 720px;
 }
-.app-title {
+
+#header {
   margin-bottom: 20px;
 }
 </style>

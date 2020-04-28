@@ -11,6 +11,7 @@ Vue.use(VueRouter);
 Vue.config.productionTip = false
 
 const router = new VueRouter({
+  mode: 'history',
   routes: [
     { path: '/', component: Login, name: 'Login' },
     { path: '/app/login', component: Login },

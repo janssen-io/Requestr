@@ -1,8 +1,20 @@
 <template>
     <div>
-        <input type="password" v-model="apikey" />
-        <input type="submit" v-on:click="putKey" />
-        <span class="error">{{ message }}</span>
+          <div class="field">
+            <label class="label">API key</label>
+            <div class="control has-icons-left">
+              <span class="icon is-small is-left">
+                <i class="fa fa-key"></i>
+              </span>
+              <input class="input" type="password" v-model="apikey" />
+            </div>
+          </div>
+          <p class="help is-danger">{{ message }}</p>
+          <button 
+            class="button is-primary" 
+            v-bind:class="{ 'is-loading': isLoading }"
+            type="submit" 
+            v-on:click="updateKey">Update</button>
     </div>
 </template>
 
@@ -13,11 +25,14 @@ export default {
   data: function() {
     return {
         apikey: "",
-        message: ""
+        message: "",
+        isLoading: false,
     }
   },
   methods: {
-    putKey: async function () {
+    updateKey: async function () {
+      this.isLoading = true;
+      this.message = "";
       let token = window.localStorage.getItem('token');
       let url = new URL(`${process.env.VUE_APP_API}/api/users/apikey`);
       let response = await fetch(url, {
@@ -30,11 +45,12 @@ export default {
           'Authorization': `Bearer ${token}`
         },
       });
+      this.isLoading = false;
       if (response.ok) {
           this.$router.push('/app/transactions');
       }
       else {
-          this.message = "API key was not updated.";
+          this.message = await response.text();
       }
     }
   }

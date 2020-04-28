@@ -87,6 +87,7 @@ namespace Requestr
 
             app.UseAuthentication(); // authentication before authorization!
             app.UseAuthorization();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RestoreContextMiddleware>();
             app.UseEndpoints(endpoints =>
             {
