@@ -1,8 +1,8 @@
 <template>
     <div>
-        <section class="transaction" v-on:click="updateSelection">
+        <section class="transaction" v-on:click="updateSelection" v-bind:class="{ selected: isSelected }">
             <div class="column">
-                <i class="fa fa-check" v-bind:class="{ selected: isSelected }"></i>
+                <i class="fa fa-check"></i>
             </div>
             <div class="column grow">
                 <h1>{{ transaction.counterParty }}</h1>
@@ -65,6 +65,10 @@ export default {
     padding: 20px 10px;
 }
 
+.transaction.selected {
+    box-shadow: 0 0 4px hsl(171, 50%, 38%);
+}
+
 .transaction h1 {
     font-weight: bold;
     line-height: 0.8em;
@@ -96,7 +100,7 @@ export default {
 i.fa-check {
     opacity: 0;
 }
-i.fa-check.selected {
+.selected i.fa-check {
     opacity: 1;
 }
 

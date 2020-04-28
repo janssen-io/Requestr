@@ -105,8 +105,8 @@ export default {
 </script>
 
 <style scoped>
-ul {
-  list-style-type: none;
+.date-group h4 {
+  margin: 30px 0 0 0;
+  padding: 0;
 }
-
 </style>
