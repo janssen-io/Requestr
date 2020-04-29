@@ -9,6 +9,6 @@
 - [x] implement 'add bank statement' option
 - [x] add navigation to update apikey
 - [x] Remove ViewPaymentRequest (seems unnecessary considering an e-mail is sent to the sender)
-- [ ] Add Dockerfile or convert to electron app?
+- [ ] Add Dockerfile or convert to desktop/electron app?
 - [ ] Proper json bodies for errors
 - [ ] implement 'add receipts' option?
