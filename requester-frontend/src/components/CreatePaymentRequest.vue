@@ -116,7 +116,7 @@
         {{ message }}
       </div>
       <div class="has-text-centered" v-show="!success">
-        <button class="button is-medium is-primary" v-on:click="sendPaymentRequest">
+        <button class="button is-medium is-primary" v-bind:class="{ 'is-loading': isLoading }" v-on:click="sendPaymentRequest">
           <span class="icon">
             <i class="fa fa-send"></i>
           </span>
@@ -145,7 +145,8 @@ export default {
       withStatement: false,
       message: "",
       isMailSent: false,
-      success: false
+      success: false,
+      isLoading: false
     };
   },
   watch: {
@@ -172,6 +173,8 @@ export default {
       this.recipients.splice(index, 1);
     },
     sendPaymentRequest: async function() {
+      this.message = "";
+      this.isLoading = true;
       let data = {
         description: this.description,
         amount: Math.round(this.total / this.numberOfPeople * 100) / 100, // bunq requires two digits
@@ -192,6 +195,7 @@ export default {
           Authorization: `Bearer ${token}`
         }
       });
+      this.isLoading = false;
       if (response.ok) {
         let result = await response.json();
         this.message = `Your payment request is located at: ${result.link}.`;

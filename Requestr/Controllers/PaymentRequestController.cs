@@ -59,33 +59,10 @@ namespace Requestr.Controllers
                 request.Currency,
                 request.Description);
 
-            var paymentRequestId = AddToDatabase(request, bunqTab.BunqmeTabShareUrl);
-
             var username = User.Claims.First(c => c.Type == TokenService.UsernameClaim).Value;
             var isMailSent = await SendPaymentRequest(username, request, bunqTab.BunqmeTabShareUrl);
 
-            return new PaymentRequestResponse(paymentRequestId, bunqTab.BunqmeTabShareUrl, isMailSent);
-        }
-
-        private Guid AddToDatabase(SendPaymentRequest request, string bunqmeTabShareUrl)
-        {
-            var userId = User.Claims.First(c => c.Type == TokenService.UserIdClaim).Value;
-            var user = dbContext.User.Find(Guid.Parse(userId));
-            var paymentRequestId = Guid.NewGuid();
-
-            dbContext.PaymentRequests.Add(new PaymentRequest
-            {
-                Id = paymentRequestId,
-                Amount = request.Amount,
-                Currency = request.Currency,
-                Link = new Uri(bunqmeTabShareUrl),
-                Description = request.Description,
-                Recipients = string.Join(',',request.Recipients),
-                User = user
-            });
-            dbContext.SaveChanges();
-
-            return paymentRequestId;
+            return new PaymentRequestResponse(bunqTab.BunqmeTabShareUrl, isMailSent);
         }
 
         private bool IsValidEmail(string email)
